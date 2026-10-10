@@ -29,14 +29,16 @@ a:hover { text-decoration: underline; }
 .links a.get { padding: 7px 14px; border-radius: 10px; background: var(--grad); color: #0a0b14; font-weight: 650; }
 
 /* Hero */
-.hero { position: relative; text-align: center; padding: 76px 0 0; }
-.aurora { position: absolute; inset: -160px -30% auto; height: 900px; z-index: -1; pointer-events: none;
+/* The glow layers are wider than the page; clipping here keeps them from adding horizontal scroll (Safari ignores overflow-x on body alone). */
+.hero { position: relative; overflow: hidden; text-align: center; padding: 76px 0 40px; }
+.aurora { position: absolute; inset: -160px -30% auto; height: 900px; z-index: 0; pointer-events: none;
   background: radial-gradient(520px 380px at 30% 30%, rgba(86, 122, 255, .55), transparent 70%), radial-gradient(520px 400px at 70% 38%, rgba(150, 90, 255, .5), transparent 70%), radial-gradient(420px 300px at 52% 70%, rgba(224, 139, 255, .22), transparent 70%);
   filter: blur(30px); animation: drift 16s ease-in-out infinite alternate; }
-.gridlines { position: absolute; inset: 0 0 auto; height: 760px; z-index: -1; pointer-events: none;
+.gridlines { position: absolute; inset: 0 0 auto; height: 760px; z-index: 0; pointer-events: none;
   background-image: linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px); background-size: 56px 56px;
   -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 30%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse 60% 70% at 50% 30%, #000 20%, transparent 75%); }
 @keyframes drift { from { transform: translate3d(-3%, 0, 0) scale(1); } to { transform: translate3d(3%, 4%, 0) scale(1.08); } }
+.hero .wrap { position: relative; z-index: 1; }
 .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 99px; font-size: 13.5px; color: #d5d9f5; background: rgba(255, 255, 255, .07); border: 1px solid var(--line); }
 .badge i { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 10px #4ade80; }
 h1 { font-size: clamp(42px, 8vw, 84px); line-height: 1.02; letter-spacing: -.04em; margin: 22px 0 18px; font-weight: 750; text-wrap: balance; }
@@ -60,7 +62,8 @@ h1 { font-size: clamp(42px, 8vw, 84px); line-height: 1.02; letter-spacing: -.04e
 .stats span { color: var(--muted); font-size: 13.5px; }
 
 /* Sections */
-section { padding: 110px 0 0; }
+section { padding: 70px 0 0; }
+section + section { padding-top: 110px; }
 .eyebrow { font-size: 13px; font-weight: 650; letter-spacing: .12em; text-transform: uppercase; }
 h2 { font-size: clamp(30px, 5vw, 50px); line-height: 1.08; letter-spacing: -.03em; margin: 8px 0 12px; text-wrap: balance; }
 .sub { color: var(--muted); margin: 0 0 40px; max-width: 620px; font-size: 17.5px; }
@@ -100,7 +103,7 @@ h2 { font-size: clamp(30px, 5vw, 50px); line-height: 1.08; letter-spacing: -.03e
 @keyframes scrolly { 0%, 10% { transform: translateY(0); } 80%, 100% { transform: translateY(-214px); } }
 
 .canvas { left: 9%; top: 9%; width: 82%; height: 110%; border-radius: 10px; background: #fff; }
-.canvas svg { left: 0; top: 0; width: 360px; height: 220px; }
+.canvas svg { left: 0; top: 0; width: min(100%, 360px); height: auto; }
 .canvas .draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 5s ease-in-out infinite; }
 .canvas .d2 { animation-delay: .7s; }
 @keyframes draw { 0%, 5% { stroke-dashoffset: 1; } 30%, 100% { stroke-dashoffset: 0; } }
@@ -170,7 +173,7 @@ footer { padding: 44px 0 52px; color: var(--muted); font-size: 14px; text-align:
   .card, .card.w7, .card.w5 { grid-column: span 12; }
   .snap, .duo, .steps { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr 1fr; }
-  section { padding-top: 80px; }
+  section + section { padding-top: 80px; }
 }
 @media (max-width: 480px) { .links { gap: 12px; } .links a.get { display: none; } }
 @media (prefers-reduced-motion: reduce) {
