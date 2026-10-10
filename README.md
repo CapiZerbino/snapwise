@@ -7,6 +7,7 @@ Swift (AppKit + SwiftUI), ScreenCaptureKit, AVFoundation, Vision. No third-party
 
 Website with an intro video: https://capizerbino.github.io/snapwise/ ([Tiếng Việt](https://capizerbino.github.io/snapwise/vi/)).
 The video is rendered from `docs/promo/index.html` with `node scripts/render-promo-video.mjs`.
+The two pages are generated: edit `scripts/make-landing-pages.py` and rerun it with `python3`.
 
 ## Requirements
 
