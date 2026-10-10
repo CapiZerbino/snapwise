@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snapwise — chụp màn hình, quay màn hình và sắp xếp cửa sổ cho macOS</title>
+<meta name="description" content="Snapwise là ứng dụng thanh menu miễn phí, mã nguồn mở cho macOS: chụp màn hình, quay màn hình, chú thích, OCR và sắp xếp cửa sổ. Viết bằng Swift, không phụ thuộc thư viện bên ngoài.">
+<meta property="og:title" content="Snapwise">
+<meta property="og:description" content="Chụp màn hình, quay màn hình và sắp xếp cửa sổ trong một ứng dụng macOS. Miễn phí, mã nguồn mở.">
+<meta property="og:image" content="https://capizerbino.github.io/snapwise/icon.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="../icon.png">
+<link rel="alternate" hreflang="vi" href="https://capizerbino.github.io/snapwise/vi/">
+<link rel="alternate" hreflang="en" href="https://capizerbino.github.io/snapwise/">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><img src="../icon.png" alt="">Snapwise</a>
+    <div class="links">
+      <a class="hide" href="#features">Tính năng</a>
+      <a class="hide" href="#shortcuts">Phím tắt</a>
+      <a href="#install">Cài đặt</a>
+      <a href="https://github.com/CapiZerbino/snapwise">GitHub</a>
+      <a href="../" lang="en">English</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <img class="icon" src="../icon.png" alt="Biểu tượng ứng dụng Snapwise" width="124" height="124">
+    <h1>Chụp màn hình.<br><span>Sắp xếp cửa sổ.</span></h1>
+    <p class="lead">Snapwise là ứng dụng thanh menu cho macOS: chụp màn hình, quay màn hình, chú thích, nhận dạng chữ và sắp xếp cửa sổ — miễn phí và mã nguồn mở.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/CapiZerbino/snapwise/releases/latest">Tải về cho macOS</a>
+      <a class="btn" href="https://github.com/CapiZerbino/snapwise">Xem mã nguồn</a>
+    </div>
+    <p class="note">macOS 15 trở lên · Apple silicon và Intel · Giấy phép MIT</p>
+
+    <video class="demo" autoplay muted loop playsinline controls preload="metadata" poster="../promo-vi.jpg" aria-label="Video giới thiệu Snapwise: chụp, chú thích, quay màn hình, sao chép chữ và xếp cửa sổ">
+      <source src="../promo-vi.mp4" type="video/mp4">
+    </video>
+  </header>
+
+  <section id="features">
+    <h2>Tất cả trong một ứng dụng thanh menu</h2>
+    <p class="sub">Viết bằng Swift với ScreenCaptureKit, AVFoundation và Vision. Không dùng thư viện bên ngoài, không cần tài khoản, dữ liệu không rời khỏi máy của bạn.</p>
+    <div class="grid">
+      <div class="card"><span class="tag">Chụp</span><h3>Chụp màn hình</h3><p>Vùng chọn, cửa sổ, toàn màn hình, vùng vừa chụp, hẹn giờ và chế độ All-In-One. Có tâm ngắm, kính lúp, đóng băng màn hình; ảnh cửa sổ đặt trên hình nền, màu trơn hoặc gradient.</p></div>
+      <div class="card"><span class="tag">Chụp</span><h3>Chụp cuộn</h3><p>Ghép trang dài theo chiều dọc hoặc ngang, cuộn tay hoặc tự động. Thanh tiêu đề và chân trang cố định chỉ xuất hiện một lần.</p></div>
+      <div class="card"><span class="tag">Chụp</span><h3>Nhận dạng chữ</h3><p>Chọn một vùng bất kỳ để sao chép chữ trong đó. OCR chạy ngay trên máy, tự nhận ngôn ngữ; đọc được cả mã QR và mã vạch.</p></div>
+      <div class="card"><span class="tag">Quay</span><h3>Video và GIF</h3><p>Quay một vùng, một cửa sổ hoặc toàn màn hình thành MP4 hay GIF, kèm âm thanh máy, micro, tạm dừng, hiệu ứng click, hiển thị phím bấm và khung camera.</p></div>
+      <div class="card"><span class="tag">Quay</span><h3>Trình sửa video</h3><p>Cắt đoạn, đổi khung ngang, vuông hoặc dọc, thêm nền gradient, tự phóng to theo vị trí click, xuất ra MP4 hoặc GIF.</p></div>
+      <div class="card"><span class="tag">Chỉnh sửa</span><h3>Chú thích</h3><p>Mũi tên, hình khối, bút vẽ, bút dạ quang, chữ, số thứ tự, làm mờ, làm nổi bật, cắt, xoay và công cụ nền với gradient, lề và đổ bóng. Lưu thành tệp dự án để sửa lại sau.</p></div>
+      <div class="card"><span class="tag">Quy trình</span><h3>Ô truy cập nhanh</h3><p>Mỗi lần chụp hiện một hình thu nhỏ ở góc màn hình: sao chép, lưu, chú thích, ghim hoặc kéo thẳng sang ứng dụng khác.</p></div>
+      <div class="card"><span class="tag">Quy trình</span><h3>Ghim và lịch sử</h3><p>Ghim ảnh chụp nổi trên mọi cửa sổ, chỉnh được kích thước và độ trong suốt. Xem lại, khôi phục và xuất lại các lần chụp cũ trong lịch sử.</p></div>
+      <div class="card"><span class="tag">Cửa sổ</span><h3>Sắp xếp cửa sổ</h3><p>Kéo cửa sổ vào cạnh hoặc góc màn hình để chia nửa, chia tư, phóng to với khung xem trước, hoặc dùng phím tắt cho một phần ba và hai phần ba. Có vùng tùy chỉnh, thao tác trên nút thanh tiêu đề, giữ phím để di chuyển và đổi kích thước.</p></div>
+    </div>
+  </section>
+
+  <section id="shortcuts">
+    <h2>Phím tắt mặc định</h2>
+    <p class="sub">Mọi phím tắt đều đổi được trong Settings › Shortcuts, có sẵn bộ kiểu macOS <kbd>⌘⇧3</kbd> <kbd>⌘⇧4</kbd> <kbd>⌘⇧5</kbd> chỉ với một cú bấm.</p>
+    <div class="table"><table>
+      <tr><td><kbd>⌃⇧1</kbd></td><td>Chụp All-In-One</td></tr>
+      <tr><td><kbd>⌃⇧2</kbd></td><td>Chụp chữ (OCR)</td></tr>
+      <tr><td><kbd>⌃⇧3</kbd> <kbd>⌃⇧4</kbd> <kbd>⌃⇧5</kbd></td><td>Chụp toàn màn hình / vùng chọn / cửa sổ</td></tr>
+      <tr><td><kbd>⌃⇧6</kbd></td><td>Chụp cuộn</td></tr>
+      <tr><td><kbd>⌃⇧7</kbd> <kbd>⌃⇧8</kbd></td><td>Quay video / GIF</td></tr>
+      <tr><td><kbd>⌃⌥←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td><td>Xếp vào nửa màn hình — bấm lại để đổi ½ → ⅔ → ⅓</td></tr>
+      <tr><td><kbd>⌃⌥U</kbd> <kbd>I</kbd> <kbd>J</kbd> <kbd>K</kbd></td><td>Xếp vào một phần tư màn hình</td></tr>
+      <tr><td><kbd>⌃⌥↩</kbd> <kbd>⌃⌥C</kbd></td><td>Phóng to / căn giữa</td></tr>
+      <tr><td><kbd>⌃⌥D</kbd> <kbd>F</kbd> <kbd>G</kbd></td><td>Một phần ba trái / giữa / phải</td></tr>
+      <tr><td><kbd>⌃⌥⌘←</kbd> <kbd>→</kbd></td><td>Chuyển sang màn hình trước / sau</td></tr>
+      <tr><td><kbd>⌃⌥⌫</kbd></td><td>Trả về kích thước trước khi xếp</td></tr>
+    </table></div>
+  </section>
+
+  <section id="install">
+    <h2>Cài đặt</h2>
+    <p class="sub">Snapwise đã được ký nhưng chưa qua bước notarize của Apple, nên lần mở đầu tiên cần thêm một thao tác. Giao diện ứng dụng hiện bằng tiếng Anh.</p>
+    <ol class="steps">
+      <li>Tải tệp zip ở <a href="https://github.com/CapiZerbino/snapwise/releases/latest">bản phát hành mới nhất</a>, giải nén rồi kéo <b>Snapwise.app</b> vào thư mục Applications.</li>
+      <li>Mở ứng dụng. Nếu macOS chặn, vào System Settings › Privacy &amp; Security và chọn <b>Open Anyway</b>.</li>
+      <li>Cấp quyền <b>Screen &amp; System Audio Recording</b> khi được hỏi rồi mở lại ứng dụng. Tính năng sắp xếp cửa sổ cần thêm quyền <b>Accessibility</b>.</li>
+      <li>Muốn tự biên dịch? Clone repo, chạy <code>brew install xcodegen</code> rồi <code>./build.sh Release</code>.</li>
+    </ol>
+  </section>
+
+  <footer>
+    Snapwise là dự án mã nguồn mở độc lập, phát hành theo <a href="https://github.com/CapiZerbino/snapwise/blob/main/LICENSE">giấy phép MIT</a>.
+    Dự án không liên kết với bất kỳ sản phẩm chụp màn hình hay quản lý cửa sổ nào khác.<br>
+    <a href="https://github.com/CapiZerbino/snapwise">Mã nguồn</a> · <a href="https://github.com/CapiZerbino/snapwise/issues">Báo lỗi</a>
+  </footer>
+</div>
+</body>
+</html>

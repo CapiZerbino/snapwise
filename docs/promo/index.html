@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snapwise — intro animation</title>
+<!--
+  Source of the intro video. The whole animation is a pure function of time (render(t)), so it plays live in a
+  browser and can be exported frame by frame: scripts/render-promo-video.mjs calls window.renderAt(seconds).
+  Query parameters: ?lang=vi for Vietnamese captions, ?capture=1 to stop the live loop.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0d1c; overflow: hidden; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; overflow: hidden; color: #fff;
+    background: radial-gradient(900px 520px at 22% 8%, #2b3a8f 0%, transparent 62%), radial-gradient(800px 520px at 88% 96%, #4b2a9c 0%, transparent 60%), #0d1024; }
+  #stage div, #stage b, #stage svg { position: absolute; box-sizing: border-box; }
+  .full { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .full > * { position: static !important; }
+  .full img { width: 190px; height: 190px; }
+  .full h1 { font-size: 84px; letter-spacing: -.03em; margin: 6px 0 4px; font-weight: 700; }
+  .full p { font-size: 32px; margin: 0; color: #c9cffb; }
+  .pill { margin-top: 30px; padding: 12px 26px; border-radius: 999px; background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .25); font: 600 24px ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  #desk { inset: 0; }
+  #screen { left: 140px; top: 34px; width: 1000px; height: 562px; border-radius: 18px; overflow: hidden;
+    background: linear-gradient(135deg, #86aefc 0%, #9a8bf7 55%, #dba5f5 100%); box-shadow: 0 30px 80px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .16); }
+  .menubar { left: 0; top: 0; width: 100%; height: 24px; background: rgba(255, 255, 255, .28); }
+  #cap { left: 0; top: 612px; width: 100%; text-align: center; }
+  #cap h2 { margin: 0; font-size: 40px; letter-spacing: -.02em; font-weight: 700; }
+  #cap p { margin: 2px 0 0; font-size: 22px; color: #c9cffb; }
+
+  .win { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 14px 40px rgba(20, 20, 70, .32); }
+  /* Mock document; everything is in percentages so the same markup fills a window, the editor canvas and the thumbnail. */
+  .page { inset: 0; background: #fff; }
+  .page .tb { left: 0; top: 0; width: 100%; height: 8%; background: #f1f3f9; }
+  .page .tb::before { content: ""; position: absolute; left: 3%; top: 32%; height: 36%; aspect-ratio: 1; border-radius: 50%; background: #ff5f57; box-shadow: 1.6em 0 #febc2e, 3.2em 0 #28c840; font-size: 10px; }
+  .page .h { left: 6%; top: 13%; width: 40%; height: 5.5%; border-radius: 6px; background: #2a2f45; }
+  .page .img { left: 6%; top: 25%; width: 42%; height: 40%; border-radius: 10px; background: linear-gradient(135deg, #ffb86b, #ff6b9d 55%, #8f6bff); }
+  .page .r, .page .b { height: 3.6%; border-radius: 99px; background: #d9deec; }
+  .page .r { left: 53%; }
+  .page .b { left: 6%; }
+  .page .r.hit { background: #5b6cf2; }
+  .side { left: 0; top: 8%; width: 28%; height: 92%; background: #f1f3f9; }
+
+  #sel, #sel2 { border: 2px solid #fff; box-shadow: 0 0 0 2000px rgba(10, 12, 40, .38); }
+  #sel b { left: 0; bottom: -34px; white-space: nowrap; font: 600 15px ui-monospace, SFMono-Regular, Menlo, monospace; background: #14161f; padding: 5px 9px; border-radius: 7px; }
+  #flash { inset: 0; background: #fff; }
+  #card { width: 214px; height: 142px; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 12px 34px rgba(20, 20, 70, .4), 0 0 0 1px rgba(255, 255, 255, .5); }
+  #card .btns { left: 0; bottom: 10px; width: 100%; display: flex; gap: 8px; justify-content: center; }
+  #card .btns span { padding: 5px 14px; border-radius: 99px; background: rgba(20, 22, 31, .82); font-size: 13px; font-weight: 600; }
+
+  #editor { left: 120px; top: 40px; width: 760px; height: 492px; background: #1d2030; border-radius: 14px; overflow: hidden; box-shadow: 0 18px 50px rgba(10, 10, 50, .5); }
+  #tools { left: 0; top: 0; width: 100%; height: 50px; background: #262a3d; display: flex; gap: 8px; align-items: center; justify-content: center; }
+  #tools span { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; font-size: 17px; color: #aab1d1; }
+  #tools span.on { background: #5b6cf2; color: #fff; }
+  #shot { left: 60px; top: 78px; width: 640px; height: 380px; border-radius: 8px; overflow: hidden; }
+  #shot svg { inset: 0; width: 640px; height: 380px; }
+  #blur { left: 28px; top: 264px; width: 300px; height: 84px; border-radius: 6px; backdrop-filter: blur(7px); background: rgba(255, 255, 255, .25); }
+
+  #recframe { border: 3px solid #ff3b47; border-radius: 6px; }
+  #recpill { height: 44px; padding: 0 16px; border-radius: 12px; background: rgba(20, 22, 31, .88); display: flex; gap: 12px; align-items: center; font: 600 19px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  #recpill i { position: static; width: 13px; height: 13px; border-radius: 50%; background: #ff3b47; display: block; }
+  #recpill em { font-style: normal; font-size: 14px; padding: 3px 8px; border-radius: 6px; background: rgba(255, 255, 255, .16); }
+  .ripple { border: 3px solid #fff; border-radius: 50%; background: rgba(255, 255, 255, .3); }
+  #toast { left: 0; width: 100%; display: flex; justify-content: center; }
+  #toast span { padding: 10px 20px; border-radius: 12px; background: rgba(20, 22, 31, .88); font-size: 18px; font-weight: 600; }
+
+  #zone { border-radius: 12px; border: 2px solid rgba(255, 255, 255, .9); background: rgba(255, 255, 255, .3); backdrop-filter: blur(10px); }
+  #keys { left: 0; top: 440px; width: 100%; display: flex; gap: 10px; justify-content: center; }
+  #keys span { min-width: 58px; height: 58px; padding: 0 14px; border-radius: 13px; display: grid; place-items: center; font-size: 28px; font-weight: 600; color: #14161f; background: #fff; box-shadow: 0 5px 0 #b9bfdd, 0 14px 30px rgba(10, 10, 50, .4); }
+  #cursor { width: 30px; height: 30px; }
+  #cursor svg { inset: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="intro" class="full"><img id="i-icon" src="../icon.png" alt=""><h1 id="i-title">Snapwise</h1><p id="i-tag"></p></div>
+
+  <div id="desk">
+    <div id="screen">
+      <div class="menubar"></div>
+      <div id="w2" class="win"><div class="page"><div class="tb"></div><div class="side"></div>
+        <div class="r" style="left:34%;top:18%;width:40%;background:#2a2f45"></div><div class="r" style="left:34%;top:30%;width:56%"></div>
+        <div class="r" style="left:34%;top:38%;width:50%"></div><div class="r" style="left:34%;top:46%;width:58%"></div><div class="r" style="left:34%;top:54%;width:36%"></div></div></div>
+      <div id="zone"></div>
+      <div id="w1" class="win"><div class="page" id="w1page"></div></div>
+      <div id="sel"><b id="selsize"></b></div>
+      <div id="sel2"></div>
+      <div id="flash"></div>
+      <div id="card"><div class="page" id="cardpage"></div><div class="btns"><span>Copy</span><span>Save</span></div></div>
+      <div id="editor">
+        <div id="tools"><span>↗</span><span>▭</span><span>T</span><span>▒</span><span>✎</span><span>◯</span><span>①</span><span>✂</span></div>
+        <div id="shot"><div class="page" id="shotpage"></div><div id="blur"></div>
+          <svg viewBox="0 0 640 380" fill="none" stroke="#ff3b47" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+            <rect id="a-rect" x="28" y="85" width="290" height="172" rx="10" pathLength="1" stroke-dasharray="1"/>
+            <line id="a-line" x1="480" y1="312" x2="338" y2="246" pathLength="1" stroke-dasharray="1"/>
+            <polygon id="a-head" points="0,0 -20,-10 -20,10" fill="#ff3b47" transform="translate(328,241) rotate(205)"/>
+            <text id="a-text" x="424" y="350" fill="#ff3b47" stroke="none" font-size="34" font-weight="700"></text>
+          </svg>
+        </div>
+      </div>
+      <div id="recframe"></div>
+      <div id="recpill"><i id="recdot"></i><span id="rectime">00:00</span><em>MP4</em><em>GIF</em></div>
+      <div id="toast"><span>✓ Text copied to clipboard</span></div>
+      <div id="keys"><span>⌃</span><span>⌥</span><span>→</span></div>
+      <div class="ripple" id="rip1"></div><div class="ripple" id="rip2"></div>
+      <div id="cursor">
+        <svg id="c-arrow" width="30" height="30" viewBox="0 0 30 30"><path d="M3 2 L3 24 L9 18.5 L13 27.5 L16.6 26 L12.7 17 L21 17 Z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        <svg id="c-cross" width="30" height="30" viewBox="0 0 30 30" stroke="#fff" stroke-width="2"><path d="M15 1 V29 M1 15 H29"/></svg>
+      </div>
+    </div>
+    <div id="cap"><h2 id="cap-h"></h2><p id="cap-p"></p></div>
+  </div>
+
+  <div id="outro" class="full"><img id="o-icon" src="../icon.png" alt=""><h1 id="o-title">Snapwise</h1><p id="o-tag"></p><span class="pill" id="o-url">github.com/CapiZerbino/snapwise</span></div>
+</div>
+
+<script>
+const TEXT = {
+  en: { tag: 'Capture your screen. Arrange your windows.', out: 'Free and open source for macOS', scenes: [
+    ['Capture anything', 'Area, window, full screen or a whole scrolling page'],
+    ['Annotate in seconds', 'Arrows, shapes, text, blur and beautiful backgrounds'],
+    ['Record video or GIF', 'With audio, click highlights and keystrokes'],
+    ['Copy text from anywhere', 'On-device OCR, plus QR codes and barcodes'],
+    ['Snap windows into place', 'Drag to an edge or press a shortcut']] },
+  vi: { tag: 'Chụp màn hình. Sắp xếp cửa sổ.', out: 'Miễn phí, mã nguồn mở cho macOS', scenes: [
+    ['Chụp mọi thứ', 'Vùng chọn, cửa sổ, toàn màn hình hay cả trang cuộn dài'],
+    ['Chú thích trong vài giây', 'Mũi tên, hình khối, chữ, làm mờ và nền đẹp'],
+    ['Quay video hoặc GIF', 'Kèm âm thanh, hiệu ứng click và phím bấm'],
+    ['Sao chép chữ ở bất cứ đâu', 'OCR ngay trên máy, đọc cả mã QR và mã vạch'],
+    ['Xếp cửa sổ gọn gàng', 'Kéo vào cạnh màn hình hoặc bấm phím tắt']] },
+};
+const params = new URLSearchParams(location.search);
+const T = TEXT[params.get('lang')] || TEXT.en;
+const DURATION = 30;
+// Scene start times; the last entry is where the desktop fades out for the outro.
+const SCENES = [3.2, 8.6, 13.5, 17.5, 20.5, 26];
+
+const $ = id => document.getElementById(id);
+const PAGE = '<div class="tb"></div><div class="h"></div><div class="img"></div>'
+  + [[26, 38], [33, 41], [40, 34], [47, 40], [54, 27]].map(([top, w]) => `<div class="r" style="top:${top}%;width:${w}%"></div>`).join('')
+  + [[72, 44], [79, 38], [86, 41]].map(([top, w]) => `<div class="b" style="top:${top}%;width:${w}%"></div>`).join('');
+for (const id of ['w1page', 'cardpage', 'shotpage']) $(id).innerHTML = PAGE;
+$('i-tag').textContent = T.tag;
+$('o-tag').textContent = T.out;
+const ocrLines = [...$('w1page').querySelectorAll('.r')];
+const tools = [...$('tools').children];
+
+const clamp = x => Math.max(0, Math.min(1, x));
+const inOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = x => 1 - Math.pow(1 - x, 3);
+const linear = x => x;
+/** Eased progress of t through [a, b]. */
+const P = (t, a, b, f = inOut) => f(clamp((t - a) / (b - a)));
+const L = (a, b, k) => a + (b - a) * k;
+/** 1 while t is inside [a, b], with fades of length f at both ends. */
+const during = (t, a, b, f = .35) => Math.min(P(t, a, a + f, out), 1 - P(t, b - f, b, out));
+const box = (el, x, y, w, h) => { el.style.left = x + 'px'; el.style.top = y + 'px'; if (w != null) { el.style.width = w + 'px'; el.style.height = h + 'px'; } };
+const lerpRect = (a, b, k) => a.map((v, i) => L(v, b[i], k));
+const rise = (el, k, dy = 24) => { el.style.opacity = k; el.style.transform = `translateY(${L(dy, 0, k)}px)`; };
+
+const R1 = [130, 64, 560, 390];          // floating document window
+const LEFT = [6, 30, 491, 526], RIGHT = [503, 30, 491, 526];
+const W2 = [600, 170, 330, 250];
+let shownScene = -1;
+
+function render(t) {
+  t = ((t % DURATION) + DURATION) % DURATION;
+
+  // Intro and outro
+  $('intro').style.opacity = 1 - P(t, 2.8, 3.2);
+  $('i-icon').style.opacity = P(t, .1, .6);
+  $('i-icon').style.transform = `scale(${L(.6, 1, P(t, .1, .9, out))})`;
+  rise($('i-title'), P(t, .6, 1.1, out));
+  rise($('i-tag'), P(t, 1.1, 1.6, out));
+  $('outro').style.opacity = P(t, 26, 26.4) * (1 - P(t, 29.6, 30));
+  $('o-icon').style.transform = `scale(${L(.7, 1, P(t, 26, 26.8, out))})`;
+  rise($('o-title'), P(t, 26.3, 26.8, out));
+  rise($('o-tag'), P(t, 26.6, 27.1, out));
+  rise($('o-url'), P(t, 27, 27.5, out));
+  $('desk').style.opacity = during(t, 3.2, 26, .4);
+
+  // Caption for the current scene
+  const scene = SCENES.findIndex((s, i) => t >= s && t < (SCENES[i + 1] ?? -1));
+  if (scene >= 0 && scene !== shownScene) { $('cap-h').textContent = T.scenes[scene][0]; $('cap-p').textContent = T.scenes[scene][1]; shownScene = scene; }
+  rise($('cap'), scene >= 0 ? during(t, SCENES[scene], SCENES[scene + 1], .3) : 0, 14);
+
+  let cursor = null; // [x, y, opacity, 'arrow' | 'cross']
+
+  // Scene 1 — area capture, then the quick access thumbnail
+  const drag = P(t, 4.8, 6.0);
+  const selW = L(0, 500, drag), selH = L(0, 310, drag);
+  box($('sel'), 160, 110, selW, selH);
+  $('sel').style.opacity = t >= 4.8 && t < 6.15 ? 1 : 0;
+  $('selsize').textContent = `${Math.round(selW)} × ${Math.round(selH)}`;
+  $('flash').style.opacity = Math.max(0, 1 - Math.abs(t - 6.15) / .16) * .85;
+  box($('card'), L(-240, 20, P(t, 6.3, 6.9, out)), 400);
+  $('card').style.opacity = t < 9 ? 1 - P(t, 8.3, 8.7) : 0;
+  if (t < 6.3) {
+    const move = P(t, 3.8, 4.6);
+    cursor = [L(L(720, 160, move), 660, drag), L(L(430, 110, move), 420, drag), during(t, 3.6, 6.25, .2), 'cross'];
+  }
+
+  // Scene 2 — annotate editor
+  $('editor').style.opacity = during(t, 8.7, 13.5, .4);
+  $('editor').style.transform = `scale(${L(.94, 1, P(t, 8.7, 9.2, out))})`;
+  const active = t < 10.4 ? 0 : t < 11.2 ? 1 : t < 12.1 ? 2 : 3;
+  tools.forEach((el, i) => el.classList.toggle('on', i === active));
+  const arrow = P(t, 9.6, 10.3);
+  $('a-line').style.strokeDashoffset = 1 - arrow;
+  $('a-line').style.opacity = arrow > 0 ? 1 : 0;
+  $('a-head').style.opacity = P(t, 10.2, 10.3);
+  const rect = P(t, 10.5, 11.1);
+  $('a-rect').style.strokeDashoffset = 1 - rect;
+  $('a-rect').style.opacity = rect > 0 ? 1 : 0;
+  $('a-text').textContent = 'Ship it!'.slice(0, Math.round(8 * P(t, 11.3, 12, linear)));
+  $('blur').style.opacity = P(t, 12.2, 12.6);
+
+  // Scene 3 — recording with click highlights
+  const rec = during(t, 13.9, 17.4, .3);
+  box($('recframe'), 100, 44, 620, 430);
+  $('recframe').style.opacity = rec;
+  box($('recpill'), 740, 52);
+  $('recpill').style.opacity = rec;
+  $('rectime').textContent = '00:0' + Math.max(0, Math.min(9, Math.floor(t - 14.1)));
+  $('recdot').style.opacity = Math.floor(t * 2) % 2 ? 1 : .35;
+  const clicks = [[15.0, 300, 220], [16.4, 540, 330]];
+  clicks.forEach(([at, x, y], i) => {
+    const k = clamp((t - at) / .6), size = L(14, 84, out(k)), el = $('rip' + (i + 1));
+    box(el, x - size / 2, y - size / 2, size, size);
+    el.style.opacity = t >= at && k < 1 ? 1 - k : 0;
+  });
+  if (t >= 14 && t < 17.5) {
+    const a = P(t, 14.2, 14.9), b = P(t, 15.5, 16.3);
+    cursor = [L(L(760, 300, a), 540, b), L(L(400, 220, a), 330, b), during(t, 14.1, 17.4, .2), 'arrow'];
+  }
+
+  // Scene 4 — text recognition
+  const grow = P(t, 17.9, 18.5);
+  box($('sel2'), 415, 150, L(0, 255, grow), L(0, 140, grow));
+  $('sel2').style.opacity = t >= 17.9 && t < 19.3 ? 1 - P(t, 19.1, 19.3) : 0;
+  ocrLines.forEach((el, i) => el.classList.toggle('hit', t > 18.6 + i * .1 && t < 20.3));
+  const toast = during(t, 19.3, 20.4, .25);
+  $('toast').style.opacity = toast;
+  $('toast').style.top = L(24, 44, toast) + 'px';
+
+  // Scene 5 — drag to an edge, then a keyboard shortcut
+  const pull = P(t, 20.9, 21.9), snap = P(t, 22.2, 22.6);
+  const cx = L(410, 3, pull), cy = L(80, 250, pull);
+  const dragged = [R1[0] + cx - 410, R1[1] + cy - 80, R1[2], R1[3]];
+  box($('w1'), ...lerpRect(dragged, LEFT, snap));
+  $('w1').style.opacity = 1 - during(t, 8.4, 13.8, .4);
+  box($('zone'), ...LEFT);
+  $('zone').style.opacity = P(t, 21.5, 21.8) * (1 - P(t, 22.2, 22.45));
+  box($('w2'), ...lerpRect(W2, RIGHT, P(t, 23.3, 23.8)));
+  $('w2').style.opacity = t >= 20.5 ? P(t, 20.5, 20.9) : 0;
+  const keys = during(t, 22.9, 24.7, .25);
+  $('keys').style.opacity = keys;
+  $('keys').style.transform = `scale(${L(.8, 1, keys)})`;
+  if (t >= 20.5) cursor = [L(540, cx, P(t, 20.55, 20.9)), L(300, cy, P(t, 20.55, 20.9)), during(t, 20.5, 23, .25), 'arrow'];
+
+  const c = $('cursor');
+  c.style.opacity = cursor ? cursor[2] : 0;
+  if (cursor) {
+    const cross = cursor[3] === 'cross';
+    // The crosshair is centred on the pointer; the arrow's tip is its top-left corner.
+    box(c, cursor[0] - (cross ? 15 : 3), cursor[1] - (cross ? 15 : 2));
+    $('c-cross').style.opacity = cross ? 1 : 0;
+    $('c-arrow').style.opacity = cross ? 0 : 1;
+  }
+}
+window.renderAt = render;
+
+if (params.has('capture')) {
+  render(0);
+} else {
+  const fit = () => {
+    const s = Math.min(innerWidth / 1280, innerHeight / 720);
+    $('stage').style.transform = `translate(${(innerWidth - 1280 * s) / 2}px, ${(innerHeight - 720 * s) / 2}px) scale(${s})`;
+  };
+  addEventListener('resize', fit);
+  fit();
+  const loop = now => { render(now / 1000); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>

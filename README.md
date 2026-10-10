@@ -5,6 +5,9 @@ snapping (modelled on BetterSnapTool). Formerly named Lumshot; the bundle identi
 settings and shortcuts carry over.
 Swift (AppKit + SwiftUI), ScreenCaptureKit, AVFoundation, Vision. No third-party dependencies.
 
+Website with an intro video: https://capizerbino.github.io/snapwise/ ([Tiếng Việt](https://capizerbino.github.io/snapwise/vi/)).
+The video is rendered from `docs/promo/index.html` with `node scripts/render-promo-video.mjs`.
+
 ## Requirements
 
 - macOS 15 or later, Xcode 16 or later
