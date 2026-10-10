@@ -1,0 +1,7 @@
+.DS_Store
+build/
+.derived/
+DerivedData/
+*.xcodeproj
+xcuserdata/
+Snapwise.app/

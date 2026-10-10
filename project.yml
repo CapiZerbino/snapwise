@@ -1,0 +1,62 @@
+name: Snapwise
+options:
+  bundleIdPrefix: com.tieuviettrongnghia
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Apple Development"
+    DEVELOPMENT_TEAM: BH9G4NTX5B
+    ENABLE_HARDENED_RUNTIME: NO
+targets:
+  Snapwise:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/Snapwise
+    info:
+      path: Config/Info.plist
+      properties:
+        CFBundleDisplayName: Snapwise
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.productivity
+        NSCameraUsageDescription: Snapwise shows your camera as an overlay in screen recordings.
+        NSMicrophoneUsageDescription: Snapwise records your microphone in screen recordings.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.tieuviettrongnghia.lumshot
+            CFBundleURLSchemes: [snapwise, lumshot]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tieuviettrongnghia.lumshot
+        ENABLE_APP_SANDBOX: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  SnapwiseTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/SnapwiseTests
+    dependencies:
+      - target: Snapwise
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.tieuviettrongnghia.lumshot.tests
+schemes:
+  Snapwise:
+    build:
+      targets:
+        Snapwise: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SnapwiseTests
