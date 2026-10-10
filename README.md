@@ -140,3 +140,7 @@ Sources/Snapwise/
   Support/      geometry, image export, gradients, overlay panel
 Tests/SnapwiseTests/
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
