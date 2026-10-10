@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snapwise — screenshots, recordings and window snapping for macOS</title>
+<meta name="description" content="Snapwise is a free, open-source macOS menu-bar app for screenshots, screen recordings, annotation, OCR and window snapping. Native Swift, no third-party dependencies.">
+<meta property="og:title" content="Snapwise">
+<meta property="og:description" content="Screenshots, screen recordings and window snapping in one native macOS menu-bar app. Free and open source.">
+<meta property="og:image" content="https://capizerbino.github.io/snapwise/icon.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="icon.png">
+<style>
+  :root {
+    --bg: #f6f7fb; --surface: #ffffff; --text: #14161f; --muted: #5b6072; --line: #e3e6ef;
+    --accent: #5b6cf2; --accent-2: #6b4ded; --accent-text: #ffffff; --key: #eef0f7;
+    --screen: #dfe4f5; --window: #ffffff; --shadow: 0 18px 50px rgba(40, 48, 100, .16);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1017; --surface: #171a24; --text: #eef0f7; --muted: #9aa0b5; --line: #262a38;
+      --accent: #7c8bff; --accent-2: #9a7dff; --accent-text: #0e1017; --key: #222636;
+      --screen: #1c2030; --window: #2a2f42; --shadow: 0 18px 50px rgba(0, 0, 0, .5);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; color: var(--text); }
+  .brand img { width: 34px; height: 34px; }
+  .links { display: flex; gap: 22px; font-size: 15px; }
+  .links a { color: var(--muted); }
+
+  header.hero { text-align: center; padding: 44px 0 20px; }
+  .hero img.icon { width: 124px; height: 124px; }
+  h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.08; letter-spacing: -.025em; margin: 10px 0 14px; text-wrap: balance; }
+  h1 span { background: linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { max-width: 640px; margin: 0 auto; color: var(--muted); font-size: 19px; text-wrap: pretty; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 28px 0 10px; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 12px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+  .btn:hover { text-decoration: none; filter: brightness(1.06); }
+  .btn.primary { border: 0; color: var(--accent-text); background: linear-gradient(100deg, var(--accent), var(--accent-2)); }
+  .note { color: var(--muted); font-size: 14px; }
+
+  /* Hero illustration: a screen with one snapped window and a capture selection. */
+  .screen { position: relative; margin: 40px auto 0; max-width: 860px; aspect-ratio: 16 / 9; border-radius: 16px; background: var(--screen); box-shadow: var(--shadow); border: 1px solid var(--line); overflow: hidden; }
+  .menubar { position: absolute; inset: 0 0 auto 0; height: 4.2%; background: rgba(127, 127, 150, .18); }
+  .win { position: absolute; background: var(--window); border-radius: 10px; box-shadow: 0 6px 20px rgba(20, 24, 60, .14); }
+  .win::before { content: ""; position: absolute; top: 12px; left: 14px; width: 9px; height: 9px; border-radius: 50%; background: #ff5f57; box-shadow: 15px 0 #febc2e, 30px 0 #28c840; }
+  .win i { position: absolute; left: 8%; height: 8px; border-radius: 4px; background: var(--key); }
+  .win.left { left: 1%; top: 6%; width: 48.5%; height: 92%; }
+  .win.right { left: 55%; top: 16%; width: 38%; height: 58%; }
+  .zone { position: absolute; left: 50.5%; top: 6%; width: 48.5%; height: 92%; border-radius: 10px; border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .select { position: absolute; left: 60%; top: 30%; width: 26%; height: 32%; border: 2px dashed var(--accent-2); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+  .select b { position: absolute; left: 0; bottom: -28px; font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; background: #14161f; color: #fff; padding: 5px 7px; border-radius: 6px; }
+
+  section { padding: 64px 0 0; }
+  h2 { font-size: clamp(26px, 4vw, 34px); letter-spacing: -.02em; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 28px; max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+
+  .table { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td { padding: 11px 18px; border-top: 1px solid var(--line); }
+  tr:first-child td { border-top: 0; }
+  td:first-child { white-space: nowrap; width: 1%; }
+  kbd { font: 600 13px/1 -apple-system, BlinkMacSystemFont, sans-serif; background: var(--key); border: 1px solid var(--line); border-radius: 6px; padding: 4px 7px; }
+
+  ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 16px 58px; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 15px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: var(--accent-text); background: linear-gradient(100deg, var(--accent), var(--accent-2)); }
+  code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--key); border-radius: 6px; padding: 2px 6px; }
+
+  footer { margin-top: 72px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; text-align: center; }
+  @media (max-width: 560px) { .links a.hide { display: none; } .select b { display: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><img src="icon.png" alt="">Snapwise</a>
+    <div class="links">
+      <a class="hide" href="#features">Features</a>
+      <a class="hide" href="#shortcuts">Shortcuts</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/CapiZerbino/snapwise">GitHub</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <img class="icon" src="icon.png" alt="Snapwise app icon" width="124" height="124">
+    <h1>Capture your screen.<br><span>Arrange your windows.</span></h1>
+    <p class="lead">Snapwise is a native macOS menu-bar app for screenshots, screen recordings, annotation, OCR and window snapping — free and open source.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/CapiZerbino/snapwise/releases/latest">Download for macOS</a>
+      <a class="btn" href="https://github.com/CapiZerbino/snapwise">View source</a>
+    </div>
+    <p class="note">macOS 15 or later · Apple silicon and Intel · MIT license</p>
+
+    <div class="screen" role="img" aria-label="Illustration: a window snapped to the left half of the screen, a highlighted drop zone on the right half and a capture selection">
+      <div class="menubar"></div>
+      <div class="win left"><i style="top:18%;width:60%"></i><i style="top:26%;width:78%"></i><i style="top:34%;width:44%"></i><i style="top:48%;width:70%"></i><i style="top:56%;width:52%"></i></div>
+      <div class="zone"></div>
+      <div class="win right"><i style="top:26%;width:66%"></i><i style="top:40%;width:80%"></i><i style="top:54%;width:48%"></i></div>
+      <div class="select"><b>666 × 461</b></div>
+    </div>
+  </header>
+
+  <section id="features">
+    <h2>Everything in one menu-bar app</h2>
+    <p class="sub">Written in Swift with ScreenCaptureKit, AVFoundation and Vision. No third-party dependencies, no account, nothing leaves your Mac.</p>
+    <div class="grid">
+      <div class="card"><span class="tag">Capture</span><h3>Screenshots</h3><p>Area, window, full screen, previous area, self-timer and an All-In-One mode. Crosshair, magnifier, frozen screen, and window shots on wallpaper, solid or gradient backgrounds.</p></div>
+      <div class="card"><span class="tag">Capture</span><h3>Scrolling capture</h3><p>Stitch long pages vertically or horizontally, by hand or with auto-scroll. Sticky headers and footers are kept once.</p></div>
+      <div class="card"><span class="tag">Capture</span><h3>Text recognition</h3><p>Select any area to copy its text. On-device OCR with automatic language detection; also reads QR codes and barcodes.</p></div>
+      <div class="card"><span class="tag">Record</span><h3>Video and GIF</h3><p>Record an area, window or the full screen as MP4 or GIF with computer audio, microphone, pause, click highlights, keystroke display and a camera bubble.</p></div>
+      <div class="card"><span class="tag">Record</span><h3>Video editor</h3><p>Trim, switch between landscape, square and vertical canvases, add gradient backgrounds, auto-zoom on recorded clicks, export to MP4 or GIF.</p></div>
+      <div class="card"><span class="tag">Edit</span><h3>Annotate</h3><p>Arrows, shapes, pencil, highlighter, text, counters, blur, spotlight, crop, rotate and a background tool with gradients, padding and shadows. Editable project files.</p></div>
+      <div class="card"><span class="tag">Workflow</span><h3>Quick access overlay</h3><p>Every capture lands in a thumbnail stack: copy, save, annotate, pin, or drag it straight into another app.</p></div>
+      <div class="card"><span class="tag">Workflow</span><h3>Pin and history</h3><p>Float a screenshot above all windows with adjustable size and opacity. Browse, restore and re-export past captures from the history.</p></div>
+      <div class="card"><span class="tag">Windows</span><h3>Window snapping</h3><p>Drag to an edge or corner for halves, quarters and maximize with a live preview, or use shortcuts for thirds and two-thirds. Custom snap areas, title-bar button actions, modifier move and resize.</p></div>
+    </div>
+  </section>
+
+  <section id="shortcuts">
+    <h2>Default shortcuts</h2>
+    <p class="sub">Every shortcut can be changed in Settings › Shortcuts, including a one-click macOS-style <kbd>⌘⇧3</kbd> <kbd>⌘⇧4</kbd> <kbd>⌘⇧5</kbd> preset.</p>
+    <div class="table"><table>
+      <tr><td><kbd>⌃⇧1</kbd></td><td>All-In-One capture</td></tr>
+      <tr><td><kbd>⌃⇧2</kbd></td><td>Capture text (OCR)</td></tr>
+      <tr><td><kbd>⌃⇧3</kbd> <kbd>⌃⇧4</kbd> <kbd>⌃⇧5</kbd></td><td>Capture full screen / area / window</td></tr>
+      <tr><td><kbd>⌃⇧6</kbd></td><td>Scrolling capture</td></tr>
+      <tr><td><kbd>⌃⇧7</kbd> <kbd>⌃⇧8</kbd></td><td>Record video / GIF</td></tr>
+      <tr><td><kbd>⌃⌥←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td><td>Snap to a half — press again to cycle ½ → ⅔ → ⅓</td></tr>
+      <tr><td><kbd>⌃⌥U</kbd> <kbd>I</kbd> <kbd>J</kbd> <kbd>K</kbd></td><td>Snap to a quarter</td></tr>
+      <tr><td><kbd>⌃⌥↩</kbd> <kbd>⌃⌥C</kbd></td><td>Maximize / center</td></tr>
+      <tr><td><kbd>⌃⌥D</kbd> <kbd>F</kbd> <kbd>G</kbd></td><td>Left / center / right third</td></tr>
+      <tr><td><kbd>⌃⌥⌘←</kbd> <kbd>→</kbd></td><td>Move to previous / next display</td></tr>
+      <tr><td><kbd>⌃⌥⌫</kbd></td><td>Restore the size from before snapping</td></tr>
+    </table></div>
+  </section>
+
+  <section id="install">
+    <h2>Install</h2>
+    <p class="sub">Snapwise is signed but not notarized by Apple, so the first launch needs one extra step.</p>
+    <ol class="steps">
+      <li>Download the zip from the <a href="https://github.com/CapiZerbino/snapwise/releases/latest">latest release</a>, unzip it and move <b>Snapwise.app</b> to Applications.</li>
+      <li>Open it. If macOS blocks the app, go to System Settings › Privacy &amp; Security and choose <b>Open Anyway</b>.</li>
+      <li>Grant <b>Screen &amp; System Audio Recording</b> when asked, then relaunch. Window snapping also needs <b>Accessibility</b>.</li>
+      <li>Prefer building it yourself? Clone the repo, <code>brew install xcodegen</code>, then run <code>./build.sh Release</code>.</li>
+    </ol>
+  </section>
+
+  <footer>
+    Snapwise is an independent open-source project released under the <a href="https://github.com/CapiZerbino/snapwise/blob/main/LICENSE">MIT license</a>.
+    It is not affiliated with any other screenshot or window-management product.<br>
+    <a href="https://github.com/CapiZerbino/snapwise">Source</a> · <a href="https://github.com/CapiZerbino/snapwise/issues">Report an issue</a>
+  </footer>
+</div>
+</body>
+</html>
