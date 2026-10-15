@@ -64,9 +64,21 @@ enum WindowAX {
         return pid
     }
 
+    /// The app the user last worked in other than Snapwise. Opening a `snapwise://` link brings Snapwise to the front,
+    /// so commands from links (and from Snapwise's own windows) act on this app instead.
+    private static var lastOtherApp: NSRunningApplication?
+
+    static func trackFrontmostApp() {
+        lastOtherApp = NSWorkspace.shared.frontmostApplication.flatMap { $0 == .current ? nil : $0 }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { note in
+            if let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication, app != .current { lastOtherApp = app }
+        }
+    }
+
     /// The window that has keyboard focus in the frontmost app.
     static func focusedWindow() -> AXWindow? {
-        guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
+        let front = NSWorkspace.shared.frontmostApplication
+        guard let app = front == .current ? lastOtherApp : front else { return nil }
         let appElement = AXUIElementCreateApplication(app.processIdentifier)
         guard let window = elementAttribute(appElement, kAXFocusedWindowAttribute) ?? elementAttribute(appElement, kAXMainWindowAttribute) else { return nil }
         return AXWindow(element: window, pid: app.processIdentifier)
