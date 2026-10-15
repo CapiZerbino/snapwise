@@ -11,7 +11,7 @@ struct SnapGlyph: View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 4).fill(Color.primary.opacity(0.08))
             RoundedRectangle(cornerRadius: 4).strokeBorder(Color.primary.opacity(0.25))
-            if let f = position.fractions {
+            if let f = position.fractions ?? SnapGlyph.edgeFractions[position] {
                 RoundedRectangle(cornerRadius: 2.5).fill(Color.accentColor)
                     .frame(width: max(4, (size.width - 4) * f.width), height: max(4, (size.height - 4) * f.height))
                     .offset(x: 2 + (size.width - 4) * f.minX, y: 2 + (size.height - 4) * f.minY)
@@ -22,6 +22,12 @@ struct SnapGlyph: View {
         }
         .frame(width: size.width, height: size.height)
     }
+
+    /// Edge moves keep the window's size, so they are drawn as a small window resting against that edge.
+    private static let edgeFractions: [SnapPosition: CGRect] = [
+        .moveLeft: CGRect(x: 0, y: 0.25, width: 0.4, height: 0.5), .moveRight: CGRect(x: 0.6, y: 0.25, width: 0.4, height: 0.5),
+        .moveUp: CGRect(x: 0.3, y: 0, width: 0.4, height: 0.5), .moveDown: CGRect(x: 0.3, y: 0.5, width: 0.4, height: 0.5),
+    ]
 }
 
 struct SnappingSettings: View {
@@ -133,12 +139,21 @@ private struct SnapLayoutsPane: View {
         ("Halves", [.snapLeftHalf, .snapRightHalf, .snapTopHalf, .snapBottomHalf]),
         ("Quarters", [.snapTopLeft, .snapTopRight, .snapBottomLeft, .snapBottomRight]),
         ("Thirds", [.snapLeftThird, .snapCenterThird, .snapRightThird, .snapLeftTwoThirds, .snapRightTwoThirds]),
+        ("Move to Edge (keeps size)", [.snapMoveLeft, .snapMoveRight, .snapMoveUp, .snapMoveDown]),
         ("Size & Displays", [.snapMaximize, .snapCenter, .snapRestore, .snapPreviousDisplay, .snapNextDisplay]),
     ]
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
+                HStack(spacing: 8) {
+                    Image(systemName: "keyboard").foregroundStyle(Color.accentColor)
+                    Text("Every direction has its own shortcut. Click one and press the keys you want.")
+                        .font(.system(size: 12))
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.accentColor.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
                 ForEach(groups, id: \.0) { group in
                     VStack(alignment: .leading, spacing: 6) {
                         Text(group.0).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
@@ -166,7 +181,8 @@ private struct SnapLayoutsPane: View {
     private func row(_ action: AppAction) -> some View {
         HStack(spacing: 8) {
             if let position = action.snapPosition { SnapGlyph(position: position) }
-            Text(action.title.replacingOccurrences(of: " Quarter", with: "")).font(.system(size: 12)).lineLimit(1)
+            Text(action.title.replacingOccurrences(of: " Quarter", with: "").replacingOccurrences(of: "Move to ", with: ""))
+                .font(.system(size: 12)).lineLimit(1)
             Spacer(minLength: 4)
             if hotkeys.failed.contains(action) {
                 Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.yellow).help("Another app already uses this shortcut.")

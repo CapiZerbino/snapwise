@@ -9,6 +9,7 @@ enum SnapPosition: String, CaseIterable {
     case leftTwoThirds = "left-two-thirds", rightTwoThirds = "right-two-thirds"
     case nextDisplay = "next-display", previousDisplay = "previous-display"
     case restore
+    case moveLeft = "move-left", moveRight = "move-right", moveUp = "move-up", moveDown = "move-down"
 
     var title: String {
         switch self {
@@ -30,6 +31,10 @@ enum SnapPosition: String, CaseIterable {
         case .nextDisplay: return "Move to Next Display"
         case .previousDisplay: return "Move to Previous Display"
         case .restore: return "Restore Original Size"
+        case .moveLeft: return "Move to Left Edge"
+        case .moveRight: return "Move to Right Edge"
+        case .moveUp: return "Move to Top Edge"
+        case .moveDown: return "Move to Bottom Edge"
         }
     }
 
@@ -53,6 +58,10 @@ enum SnapPosition: String, CaseIterable {
         case .nextDisplay: return "arrow.right.to.line"
         case .previousDisplay: return "arrow.left.to.line"
         case .restore: return "arrow.uturn.backward"
+        case .moveLeft: return "arrow.left"
+        case .moveRight: return "arrow.right"
+        case .moveUp: return "arrow.up"
+        case .moveDown: return "arrow.down"
         }
     }
 
@@ -73,7 +82,7 @@ enum SnapPosition: String, CaseIterable {
         case .rightThird: return CGRect(x: 2.0 / 3, y: 0, width: 1.0 / 3, height: 1)
         case .leftTwoThirds: return CGRect(x: 0, y: 0, width: 2.0 / 3, height: 1)
         case .rightTwoThirds: return CGRect(x: 1.0 / 3, y: 0, width: 2.0 / 3, height: 1)
-        case .center, .nextDisplay, .previousDisplay, .restore: return nil
+        case .center, .nextDisplay, .previousDisplay, .restore, .moveLeft, .moveRight, .moveUp, .moveDown: return nil
         }
     }
 
@@ -130,6 +139,23 @@ enum SnapGeometry {
         let frames = cycle.map { frame(fractions: $0, in: area, gap: gap) }
         if let index = frames.firstIndex(where: { $0.isClose(to: current, tolerance: 8) }) { return frames[(index + 1) % frames.count] }
         return frames[0]
+    }
+
+    /// Pushes `frame` against one edge of `area` (keeping its size, shrunk only to fit) without moving it along that edge.
+    static func moved(_ frame: CGRect, to position: SnapPosition, in area: CGRect, gap: CGFloat) -> CGRect? {
+        let bounds = area.insetBy(dx: gap, dy: gap)
+        let size = CGSize(width: min(frame.width, bounds.width), height: min(frame.height, bounds.height))
+        // Along the edge the window stays put, but is pulled back inside the area if it hangs off.
+        var x = min(max(frame.minX, bounds.minX), bounds.maxX - size.width)
+        var y = min(max(frame.minY, bounds.minY), bounds.maxY - size.height)
+        switch position {
+        case .moveLeft: x = bounds.minX
+        case .moveRight: x = bounds.maxX - size.width
+        case .moveUp: y = bounds.minY // top-left origin: smaller y is higher up
+        case .moveDown: y = bounds.maxY - size.height
+        default: return nil
+        }
+        return CGRect(origin: CGPoint(x: x, y: y), size: size).roundedEdges
     }
 
     /// Expresses `frame` as unit fractions of `area` (the inverse of `frame(fractions:in:gap:)` without gaps).

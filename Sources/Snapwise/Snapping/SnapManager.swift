@@ -52,6 +52,8 @@ final class SnapManager {
             guard screens.count > 1, let index = screens.firstIndex(of: screen) else { return Toast.show("No other display") }
             let next = screens[(index + (position == .nextDisplay ? 1 : screens.count - 1)) % screens.count]
             apply(SnapGeometry.transfer(frame, from: area, to: Geo.flipGlobal(next.visibleFrame)), to: window, flash: true)
+        case .moveLeft, .moveRight, .moveUp, .moveDown:
+            if let rect = SnapGeometry.moved(frame, to: position, in: area, gap: gap) { apply(rect, to: window, flash: true) }
         default:
             // Maximize acts as a toggle: pressing it on an already maximized window puts it back.
             if position == .maximize, let full = position.frame(in: area, gap: gap), full.isClose(to: frame, tolerance: 8),

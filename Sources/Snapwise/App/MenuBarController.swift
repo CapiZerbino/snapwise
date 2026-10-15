@@ -70,8 +70,8 @@ final class MenuBarController: NSObject {
         snapping.image = NSImage(systemSymbolName: "rectangle.split.2x1", accessibilityDescription: nil)
         let snapMenu = NSMenu()
         for (index, action) in AppAction.snapActions.enumerated() {
-            // Separators between halves, quarters, sizes/thirds and display moves.
-            if [4, 8, 10, 15].contains(index) { snapMenu.addItem(.separator()) }
+            // Separators between halves, quarters, sizes/thirds, display moves and edge moves.
+            if [4, 8, 10, 15, 18].contains(index) { snapMenu.addItem(.separator()) }
             snapMenu.addItem(item(for: action))
         }
         snapMenu.addItem(.separator())

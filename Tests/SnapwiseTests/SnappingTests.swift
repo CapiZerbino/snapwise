@@ -35,9 +35,21 @@ final class SnappingTests: XCTestCase {
     }
 
     func testWindowDependentPositionsHaveNoFixedFrame() {
-        for position in [SnapPosition.center, .nextDisplay, .previousDisplay, .restore] {
+        for position in [SnapPosition.center, .nextDisplay, .previousDisplay, .restore, .moveLeft, .moveDown] {
             XCTAssertNil(position.frame(in: area, gap: 0), position.rawValue)
         }
+    }
+
+    func testMovingToAnEdgeKeepsSizeAndOtherAxis() {
+        let window = CGRect(x: 300, y: 200, width: 600, height: 400)
+        XCTAssertEqual(SnapGeometry.moved(window, to: .moveLeft, in: area, gap: 0), CGRect(x: 0, y: 200, width: 600, height: 400))
+        XCTAssertEqual(SnapGeometry.moved(window, to: .moveRight, in: area, gap: 10), CGRect(x: 830, y: 200, width: 600, height: 400))
+        XCTAssertEqual(SnapGeometry.moved(window, to: .moveUp, in: area, gap: 0), CGRect(x: 300, y: 25, width: 600, height: 400))
+        XCTAssertEqual(SnapGeometry.moved(window, to: .moveDown, in: area, gap: 0), CGRect(x: 300, y: 500, width: 600, height: 400))
+        // A window hanging off the side is pulled back in; one larger than the area is shrunk to fit.
+        XCTAssertEqual(SnapGeometry.moved(CGRect(x: 1200, y: 100, width: 600, height: 400), to: .moveUp, in: area, gap: 0)?.maxX, 1440)
+        XCTAssertEqual(SnapGeometry.moved(CGRect(x: 0, y: 0, width: 2000, height: 400), to: .moveDown, in: area, gap: 0)?.width, 1440)
+        XCTAssertNil(SnapGeometry.moved(window, to: .leftHalf, in: area, gap: 0))
     }
 
     func testFractionsRoundTripAndTransferBetweenDisplays() {

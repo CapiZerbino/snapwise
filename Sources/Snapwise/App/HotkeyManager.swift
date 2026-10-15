@@ -38,6 +38,10 @@ enum AppAction: String, CaseIterable {
     case snapNextDisplay = "snap-next-display"
     case snapPreviousDisplay = "snap-previous-display"
     case snapRestore = "snap-restore"
+    case snapMoveLeft = "snap-move-left"
+    case snapMoveRight = "snap-move-right"
+    case snapMoveUp = "snap-move-up"
+    case snapMoveDown = "snap-move-down"
 
     /// The window position this action snaps to, for the snapping actions.
     var snapPosition: SnapPosition? {
@@ -114,6 +118,8 @@ enum AppAction: String, CaseIterable {
             .snapLeftTwoThirds: (kVK_ANSI_E, snap), .snapRightTwoThirds: (kVK_ANSI_T, snap),
             .snapNextDisplay: (kVK_RightArrow, snap | UInt32(cmdKey)), .snapPreviousDisplay: (kVK_LeftArrow, snap | UInt32(cmdKey)),
             .snapRestore: (kVK_Delete, snap),
+            .snapMoveLeft: (kVK_LeftArrow, snap | UInt32(shiftKey)), .snapMoveRight: (kVK_RightArrow, snap | UInt32(shiftKey)),
+            .snapMoveUp: (kVK_UpArrow, snap | UInt32(shiftKey)), .snapMoveDown: (kVK_DownArrow, snap | UInt32(shiftKey)),
         ]
         if let (key, modifiers) = snapKeys[self] { return Hotkey(keyCode: UInt32(key), modifiers: modifiers) }
         switch self {
