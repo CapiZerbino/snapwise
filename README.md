@@ -61,8 +61,9 @@ resize, combine images by drag-and-drop or paste, saved color palette, undo/redo
 Background tool: 20 gradients, solid color or custom image, padding, corners, shadow, aspect ratio, alignment,
 presets, Auto Balance.
 
-**Quick Access Overlay** — thumbnail stack with copy, save, annotate, pin, drag-out as file, swipe to dismiss,
-auto-close, restore recently closed, temporarily hide.
+**Quick Access Overlay** — thumbnail stack with copy, save, annotate, pin, drag-out as file, swipe to dismiss;
+a card slides off the screen edge after Copy, Save or drag-out (each switchable), auto-close, restore recently
+closed, temporarily hide.
 
 **Pin** — float a screenshot above all windows; scroll to resize, ⌥-scroll for opacity, arrow keys to nudge,
 lock mode (click-through).
@@ -73,7 +74,8 @@ lock mode (click-through).
 
 **Window snapping** — drag a window to a screen edge (half / maximize) or corner (quarter) with a frosted live
 preview; Esc cancels; edges shared by two displays need a short pause. Keyboard shortcuts and menu items for halves,
-quarters, thirds, two-thirds, maximize, center, next/previous display and restore; pressing a half shortcut again
+quarters, thirds, two-thirds, maximize, center, next/previous display, move to an edge (keeping size) and restore,
+each with its own customizable shortcut (Settings › Snapping › Layouts); pressing a half shortcut again
 cycles ½ → ⅔ → ⅓ and Maximize twice restores. Previous size comes back when a snapped window is dragged away.
 Custom snap areas are drawn on a miniature screen and appear as drop zones while dragging. Right-/middle-click
 actions on the close, minimize and zoom buttons; hold a modifier to move or resize the window under the pointer;
@@ -102,6 +104,7 @@ macOS-style set — turn off macOS's own screenshot shortcuts in Keyboard Settin
 | ⌃⌥D / F / G | Left / center / right third |
 | ⌃⌥E / T | Left / right two thirds |
 | ⌃⌥⌘← / → | Move to previous / next display |
+| ⌃⌥⇧← / → / ↑ / ↓ | Move to left / right / top / bottom edge, keeping the size |
 | ⌃⌥⌫ | Restore the size from before snapping |
 
 While selecting: Space switches between area and window, F or Return captures the full screen, Esc cancels,
