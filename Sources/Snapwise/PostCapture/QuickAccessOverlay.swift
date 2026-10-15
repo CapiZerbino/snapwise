@@ -25,7 +25,8 @@ final class QuickAccessManager {
     var canRestore: Bool { !recentlyClosed.isEmpty }
 
     func show(_ item: CaptureItem) {
-        if let index = cards.firstIndex(where: { $0.item.id == item.id }) { remove(at: index, remember: false) }
+        // Re-showing an item (e.g. after editing) swaps its card in place instead of swiping it away.
+        if let index = cards.firstIndex(where: { $0.item.id == item.id }) { remove(at: index, remember: false, animated: false) }
         if cards.isEmpty { screen = .underMouse }
         let width = CGFloat(prefs.overlaySize)
         let size = CGSize(width: width, height: (width * 0.64).rounded())
@@ -34,6 +35,13 @@ final class QuickAccessManager {
         panel.hasShadow = true
         let card = QuickAccessCardView(item: item, thumbnail: HistoryStore.shared.thumbnail(for: item), size: size)
         card.onClose = { [weak self] in self?.close(item) }
+        card.onCopy = { [weak self] in
+            ItemActions.copy(item)
+            if self?.prefs.overlayCloseAfterCopy == true { self?.close(item) }
+        }
+        card.onSave = { [weak self] in
+            if ItemActions.save(item), self?.prefs.overlayCloseAfterSave == true { self?.close(item) }
+        }
         card.onDragEnded = { [weak self] dropped in
             if dropped, self?.prefs.overlayCloseAfterDrag == true { self?.close(item) }
         }
@@ -46,7 +54,7 @@ final class QuickAccessManager {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(max(1, prefs.overlayAutoCloseSeconds)), execute: work)
         }
         cards.insert(entry, at: 0)
-        while cards.count > maxCards { remove(at: cards.count - 1, remember: true) }
+        while cards.count > maxCards { remove(at: cards.count - 1, remember: true, animated: false) }
         layout(animated: true)
         guard !isHidden else { return }
         // Slide in from the screen edge it is docked to.
@@ -81,14 +89,28 @@ final class QuickAccessManager {
         Toast.show("Nothing to restore")
     }
 
-    private func remove(at index: Int, remember: Bool) {
+    private func remove(at index: Int, remember: Bool, animated: Bool = true) {
         let card = cards.remove(at: index)
         card.autoClose?.cancel()
-        card.panel.close()
+        animated ? swipeAway(card.panel) : card.panel.close()
         if remember {
             recentlyClosed.append(card.item)
             MenuBarController.shared.rebuildMenu()
         }
+    }
+
+    /// Slides a closing card off the screen edge it is docked to while fading it out, then closes it.
+    private func swipeAway(_ panel: OverlayPanel) {
+        guard panel.isVisible, !isHidden, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return panel.close() }
+        panel.ignoresMouseEvents = true
+        let frame = panel.frame
+        let target = frame.offsetBy(dx: prefs.overlayOnLeft ? -(frame.width + 40) : frame.width + 40, dy: 0)
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.22
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            panel.animator().setFrame(target, display: true)
+            panel.animator().alphaValue = 0
+        }, completionHandler: { panel.close() })
     }
 
     private func layout(animated: Bool) {
@@ -179,6 +201,8 @@ final class CardButton: NSView {
 /// One thumbnail in the overlay: hover shows the actions, the background drags the file out.
 final class QuickAccessCardView: NSView, NSDraggingSource {
     var onClose: (() -> Void)?
+    var onCopy: (() -> Void)?
+    var onSave: (() -> Void)?
     var onDragEnded: ((Bool) -> Void)?
 
     private let item: CaptureItem
@@ -226,12 +250,9 @@ final class QuickAccessCardView: NSView, NSDraggingSource {
         addSubview(controls)
 
         let pill = CGSize(width: 92, height: 28), gap: CGFloat = 8
-        let copy = CardButton(title: "Copy", help: "Copy to clipboard") { [item] in ItemActions.copy(item) }
+        let copy = CardButton(title: "Copy", help: "Copy to clipboard") { [weak self] in self?.onCopy?() }
         copy.frame = CGRect(x: bounds.midX - pill.width / 2, y: bounds.midY + gap / 2, width: pill.width, height: pill.height)
-        let save = CardButton(title: "Save", help: "Save to disk") { [weak self, item] in
-            ItemActions.save(item)
-            self?.onClose?()
-        }
+        let save = CardButton(title: "Save", help: "Save to disk") { [weak self] in self?.onSave?() }
         save.frame = CGRect(x: bounds.midX - pill.width / 2, y: bounds.midY - gap / 2 - pill.height, width: pill.width, height: pill.height)
         controls.addSubview(copy)
         controls.addSubview(save)
@@ -324,8 +345,8 @@ final class QuickAccessCardView: NSView, NSDraggingSource {
             let entry = ClosureMenuItem(title: title, handler: handler)
             menu.addItem(entry)
         }
-        add("Copy") { [item] in ItemActions.copy(item) }
-        add("Save") { [item] in ItemActions.save(item) }
+        add("Copy") { [weak self] in self?.onCopy?() }
+        add("Save") { [weak self] in self?.onSave?() }
         add(item.kind == .screenshot ? "Annotate" : "Edit") { [item] in ItemActions.edit(item) }
         if item.kind == .screenshot {
             add("Pin to Screen") { [item] in ItemActions.pin(item) }

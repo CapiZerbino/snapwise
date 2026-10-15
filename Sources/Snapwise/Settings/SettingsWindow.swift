@@ -259,6 +259,8 @@ private struct OverlaySettings: View {
             if prefs.overlayAutoClose {
                 Stepper("After \(prefs.overlayAutoCloseSeconds) s", value: $prefs.overlayAutoCloseSeconds, in: 3...300)
             }
+            Toggle("Close after copying", isOn: $prefs.overlayCloseAfterCopy)
+            Toggle("Close after saving", isOn: $prefs.overlayCloseAfterSave)
             Toggle("Close after dragging the file out", isOn: $prefs.overlayCloseAfterDrag)
             Text("Swipe a card sideways to dismiss it. Double-click to edit. Use Restore Recently Closed in the menu to bring one back.")
                 .font(.caption).foregroundStyle(.secondary)

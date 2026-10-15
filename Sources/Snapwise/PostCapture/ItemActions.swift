@@ -12,7 +12,9 @@ enum ItemActions {
         Toast.show("Copied")
     }
 
-    static func save(_ item: CaptureItem) {
+    /// Returns whether the file was written.
+    @discardableResult
+    static func save(_ item: CaptureItem) -> Bool {
         let url: URL?
         if let image = item.cgImage {
             url = Output.save(image: image, scale: item.scale)
@@ -20,6 +22,7 @@ enum ItemActions {
             url = Output.save(fileAt: item.url, kind: item.kind.label)
         }
         if let url { Toast.show("Saved to \(url.lastPathComponent)") }
+        return url != nil
     }
 
     static func edit(_ item: CaptureItem) {

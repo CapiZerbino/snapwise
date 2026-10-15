@@ -99,6 +99,8 @@ final class Prefs: ObservableObject {
     @Pref("overlayAutoClose", false) var overlayAutoClose: Bool
     @Pref("overlayAutoCloseSeconds", 30) var overlayAutoCloseSeconds: Int
     @Pref("overlayCloseAfterDrag", true) var overlayCloseAfterDrag: Bool
+    @Pref("overlayCloseAfterCopy", true) var overlayCloseAfterCopy: Bool
+    @Pref("overlayCloseAfterSave", true) var overlayCloseAfterSave: Bool
 
     // Window snapping
     @Pref("snapEnabled", true) var snapEnabled: Bool
