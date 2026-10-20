@@ -3,7 +3,7 @@ import AppKit
 
 /// Development-only input automation, compiled out of Release builds.
 /// `snapwise://debug-drag?x1=&y1=&x2=&y2=&hold=` performs a real mouse drag (CoreGraphics global coordinates)
-/// so window-drag behaviour can be exercised end to end; `debug-click?x=&y=[&x2=&y2=]` is a quick left click, optionally followed by a second one.
+/// so window-drag and file-drag behaviour can be exercised end to end (`tap=`, `x3`, `y3`: tap a modifier mid-drag, then move on); `debug-click?x=&y=[&x2=&y2=]` is a quick left click, optionally followed by a second one.
 enum DebugAutomation {
     static func handle(command: String, url: URL) -> Bool {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
@@ -51,12 +51,35 @@ enum DebugAutomation {
                 post(.leftMouseDragged, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)
             }
             // Keep nudging so drag events continue while the pointer rests on the target.
-            let ticks = Int(hold / 0.05)
-            for i in 0..<max(1, ticks) {
-                post(.leftMouseDragged, x2, y2 + Double(i % 2))
-                usleep(32_000)
+            func rest(_ seconds: Double, _ x: Double, _ y: Double) {
+                for i in 0..<max(1, Int(seconds / 0.05)) {
+                    post(.leftMouseDragged, x, y + Double(i % 2))
+                    usleep(32_000)
+                }
             }
-            post(.leftMouseUp, x2, y2)
+            rest(hold, x2, y2)
+            // Optional modifier tap mid-drag (`tap=shift|command|control|option`), then a move to `x3`,`y3` before dropping.
+            var end = (x2, y2)
+            if let name = items.first(where: { $0.name == "tap" })?.value {
+                let keys: [String: (CGKeyCode, CGEventFlags)] = ["shift": (56, .maskShift), "command": (55, .maskCommand),
+                                                                 "control": (59, .maskControl), "option": (58, .maskAlternate)]
+                if let (code, flag) = keys[name] {
+                    for down in [true, false] {
+                        let event = CGEvent(keyboardEventSource: nil, virtualKey: code, keyDown: down)
+                        event?.type = .flagsChanged
+                        event?.flags = down ? flag : []
+                        event?.post(tap: .cghidEventTap)
+                        usleep(90_000)
+                    }
+                }
+                rest(0.6, x2, y2)
+                if let x3 = number("x3"), let y3 = number("y3") {
+                    for i in 1...20 { post(.leftMouseDragged, x2 + (x3 - x2) * Double(i) / 20, y2 + (y3 - y2) * Double(i) / 20) }
+                    rest(number("hold3") ?? 0.6, x3, y3)
+                    end = (x3, y3)
+                }
+            }
+            post(.leftMouseUp, end.0, end.1)
         }
         return true
     }
