@@ -3,7 +3,7 @@ import AppKit
 
 /// Development-only input automation, compiled out of Release builds.
 /// `snapwise://debug-drag?x1=&y1=&x2=&y2=&hold=` performs a real mouse drag (CoreGraphics global coordinates)
-/// so window-drag behaviour can be exercised end to end.
+/// so window-drag behaviour can be exercised end to end; `debug-click?x=&y=[&x2=&y2=]` is a quick left click, optionally followed by a second one.
 enum DebugAutomation {
     static func handle(command: String, url: URL) -> Bool {
         let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
@@ -13,6 +13,22 @@ enum DebugAutomation {
                 for type in [CGEventType.mouseMoved, .rightMouseDown, .rightMouseUp] {
                     CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: CGPoint(x: x, y: y), mouseButton: .right)?.post(tap: .cghidEventTap)
                     usleep(120_000)
+                }
+            }
+            return true
+        }
+        if command == "debug-click", let x = number("x"), let y = number("y") {
+            DispatchQueue.global().async {
+                // An optional second click (`x2`, `y2`) follows a second later, e.g. to pick an item from the menu the first opened;
+                // URL commands are not delivered while a menu is tracking.
+                var points = [CGPoint(x: x, y: y)]
+                if let x2 = number("x2"), let y2 = number("y2") { points.append(CGPoint(x: x2, y: y2)) }
+                for (index, point) in points.enumerated() {
+                    if index > 0 { usleep(1_000_000) }
+                    for type in [CGEventType.mouseMoved, .leftMouseDown, .leftMouseUp] {
+                        CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: .left)?.post(tap: .cghidEventTap)
+                        usleep(type == .mouseMoved ? 150_000 : 40_000)
+                    }
                 }
             }
             return true
