@@ -59,7 +59,8 @@ auto-zoom on recorded clicks, mute, resolution, export to MP4 or GIF. The previe
 text (7 styles), counter, blur (pixelate / smooth / secure), spotlight, crop (aspect presets), rotate, flip,
 resize, combine images by drag-and-drop or paste, saved color palette, undo/redo, editable `.snapwise` project files.
 Background tool: 20 gradients, solid color or custom image, padding, corners, shadow, aspect ratio, alignment,
-presets, Auto Balance.
+presets, Auto Balance. After Copy or Save the editor closes together with the capture's Quick Access card
+(switchable in Settings › Screenshots; `.snapwise` projects stay open).
 
 **Quick Access Overlay** — thumbnail stack with copy, save, annotate, pin, drag-out as file, swipe to dismiss;
 a card slides off the screen edge after Copy, Save or drag-out (each switchable), auto-close, restore recently

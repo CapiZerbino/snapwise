@@ -172,6 +172,15 @@ private struct ScreenshotSettings: View {
                             value: $prefs.windowGradientIndex, in: 0...(GradientPreset.all.count - 1))
                 }
             }
+            Section {
+                Toggle("Close after copying", isOn: $prefs.editorCloseAfterCopy)
+                Toggle("Close after saving", isOn: $prefs.editorCloseAfterSave)
+            } header: {
+                Text("Annotate editor")
+            } footer: {
+                Text("Closing also dismisses the capture's Quick Access card. Project files stay open.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
     }

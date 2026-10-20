@@ -101,6 +101,9 @@ final class Prefs: ObservableObject {
     @Pref("overlayCloseAfterDrag", true) var overlayCloseAfterDrag: Bool
     @Pref("overlayCloseAfterCopy", true) var overlayCloseAfterCopy: Bool
     @Pref("overlayCloseAfterSave", true) var overlayCloseAfterSave: Bool
+    // Annotate editor
+    @Pref("editorCloseAfterCopy", true) var editorCloseAfterCopy: Bool
+    @Pref("editorCloseAfterSave", true) var editorCloseAfterSave: Bool
 
     // Window snapping
     @Pref("snapEnabled", true) var snapEnabled: Bool

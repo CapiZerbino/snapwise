@@ -84,21 +84,38 @@ final class EditorWindowController: NSObject, NSWindowDelegate {
     }
 
     private func copy() {
+        model.commitPendingEdits?()
         Output.copy(image: model.exported(), scale: model.scale)
         Toast.show("Copied")
+        if Prefs.shared.editorCloseAfterCopy { finish() }
     }
 
     private func save() {
-        commitToHistory()
-        if let url = Output.save(image: model.exported(), scale: model.scale) { Toast.show("Saved to \(url.lastPathComponent)") }
+        model.commitPendingEdits?()
+        guard let url = Output.save(image: model.exported(), scale: model.scale) else { return commitToHistory() }
+        Toast.show("Saved to \(url.lastPathComponent)")
+        if Prefs.shared.editorCloseAfterSave, item != nil { finish() } else { commitToHistory() }
     }
 
     private func saveAs() {
+        model.commitPendingEdits?()
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png, .jpeg, .heic]
         panel.nameFieldStringValue = FilenameTemplate.render(Prefs.shared.filenamePattern, date: Date(), kind: "Screenshot") + ".png"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        Output.save(image: model.exported(), scale: model.scale, to: url)
+        guard panel.runModal() == .OK, let url = panel.url,
+              Output.save(image: model.exported(), scale: model.scale, to: url) != nil else { return }
+        if Prefs.shared.editorCloseAfterSave { finish() }
+    }
+
+    /// The capture has been delivered: close the editor and its Quick Access card. Project documents stay open,
+    /// since they are files being worked on rather than a capture on its way out.
+    private func finish() {
+        guard let item else { return }
+        // Card first: committing afterwards then has no card to refresh, so it never flashes back in.
+        QuickAccessManager.shared.close(item)
+        commitToHistory()
+        // Deferred so the toolbar button that triggered this finishes handling its click first.
+        DispatchQueue.main.async { [weak self] in self?.window.close() }
     }
 
     /// Returns true once the project is on disk.
