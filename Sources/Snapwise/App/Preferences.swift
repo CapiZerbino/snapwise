@@ -105,6 +105,12 @@ final class Prefs: ObservableObject {
     @Pref("editorCloseAfterCopy", true) var editorCloseAfterCopy: Bool
     @Pref("editorCloseAfterSave", true) var editorCloseAfterSave: Bool
 
+    // Drag & convert wheel
+    @Pref("convertEnabled", true) var convertEnabled: Bool
+    @Pref("convertKeyConvert", "shift") var convertKeyConvert: String
+    @Pref("convertKeyTools", "command") var convertKeyTools: String
+    @Pref("convertKeyActions", "control") var convertKeyActions: String
+
     // Window snapping
     @Pref("snapEnabled", true) var snapEnabled: Bool
     @Pref("snapDrag", true) var snapDrag: Bool

@@ -19,6 +19,7 @@ enum AppAction: String, CaseIterable {
     case annotateClipboard = "annotate-clipboard"
     case pinClipboard = "pin-clipboard"
     case openFile = "open-file"
+    case convertFiles = "convert-files"
     // Window snapping; the part after `snap-` is a `SnapPosition` raw value.
     case snapLeftHalf = "snap-left-half"
     case snapRightHalf = "snap-right-half"
@@ -69,6 +70,7 @@ enum AppAction: String, CaseIterable {
         case .annotateClipboard: return "Annotate from Clipboard"
         case .pinClipboard: return "Pin from Clipboard"
         case .openFile: return "Open File…"
+        case .convertFiles: return "Convert Files…"
         default: return rawValue
         }
     }
@@ -92,6 +94,7 @@ enum AppAction: String, CaseIterable {
         case .annotateClipboard: return "pencil.and.outline"
         case .pinClipboard: return "pin"
         case .openFile: return "folder"
+        case .convertFiles: return "arrow.triangle.2.circlepath"
         default: return "macwindow"
         }
     }
@@ -100,7 +103,7 @@ enum AppAction: String, CaseIterable {
     static let groups: [(title: String, actions: [AppAction])] = [
         ("Screenshots", [.captureArea, .capturePreviousArea, .captureFullscreen, .captureWindow, .selfTimer, .scrollingCapture, .allInOne]),
         ("Screen Recording", [.recordVideo, .recordGIF]),
-        ("Tools", [.captureText, .openFile, .annotateClipboard, .pinClipboard, .openHistory, .restoreRecentlyClosed, .toggleDesktopIcons]),
+        ("Tools", [.captureText, .convertFiles, .openFile, .annotateClipboard, .pinClipboard, .openHistory, .restoreRecentlyClosed, .toggleDesktopIcons]),
         ("Window Snapping", snapActions),
     ]
 

@@ -73,6 +73,14 @@ lock mode (click-through).
 
 **History** — filter by type, restore, copy, save, delete; configurable retention.
 
+**Drag & Convert** (inspired by Tangerine) — while dragging files anywhere, tap ⇧ for a wheel of formats, ⌘ for
+tools, ⌃ for actions (keys configurable), then drop on a bubble; the result lands next to the original and nothing
+leaves the Mac. Images ↔ PNG/JPG/HEIC/AVIF/TIFF/GIF/BMP/PDF/ICO/ICNS; video → MP4/MOV/M4A/GIF; audio → M4A/WAV/AIFF/
+FLAC/CAF; PDF → page images (300 DPI)/TXT/RTF; DOCX/RTF/HTML/TXT/ODT/Markdown ↔ DOCX/PDF/RTF/HTML/TXT/ODT; CSV ↔ TSV/
+HTML. Tools: compress, resize, rotate, flip, strip metadata, remove background, OCR, merge/split/rotate/compress PDF,
+mute, 720p, first frame, trim, ZIP/TAR.GZ, extract. Actions: AirDrop, float, copy, move, copy path, Terminal.
+Convert Files… (menu or shortcut) opens the same wheel for picked files, driven by clicks or ← → ↩ Tab.
+
 **Window snapping** — drag a window to a screen edge (half / maximize) or corner (quarter) with a frosted live
 preview; Esc cancels; edges shared by two displays need a short pause. Keyboard shortcuts and menu items for halves,
 quarters, thirds, two-thirds, maximize, center, next/previous display, move to an edge (keeping size) and restore,
@@ -132,6 +140,8 @@ snapwise://capture-area?x=100&y=100&width=800&height=600    (also capture-text, 
 - **Video editor cursor smoothing, custom cursor rendering and motion blur.**
 - Highlighter text-size detection and pixelate randomization.
 - From BetterSnapTool: title bar double-click actions, per-app snap sizes, shortcuts for custom snap areas.
+- From Tangerine: formats macOS cannot write without bundled encoders (WebP, MP3, Opus, MKV/WebM, XLSX, PPTX, EPUB,
+  PDF → DOCX/PPTX, RAR), video crop, and the touch (hold-then-drag) gesture.
 
 ## Layout
 

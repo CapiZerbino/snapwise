@@ -39,6 +39,7 @@ final class CaptureCoordinator {
         case .pinClipboard:
             if let item = itemFromClipboard(), let image = item.cgImage { PinWindowController.pin(image: image, scale: item.scale) }
         case .openFile: chooseFile()
+        case .convertFiles: FileDragMonitor.chooseFiles()
         default: break // snapping actions returned above
         }
     }

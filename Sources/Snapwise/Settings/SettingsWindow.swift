@@ -3,7 +3,7 @@ import ServiceManagement
 import SwiftUI
 
 enum SettingsTab: String, CaseIterable {
-    case general, shortcuts, screenshots, recording, overlay, snapping, advanced
+    case general, shortcuts, screenshots, recording, overlay, convert, snapping, advanced
 
     var title: String {
         switch self {
@@ -12,6 +12,7 @@ enum SettingsTab: String, CaseIterable {
         case .screenshots: return "Screenshots"
         case .recording: return "Recording"
         case .overlay: return "Quick Access"
+        case .convert: return "Convert"
         case .snapping: return "Snapping"
         case .advanced: return "Advanced"
         }
@@ -24,6 +25,7 @@ enum SettingsTab: String, CaseIterable {
         case .screenshots: return "camera.viewfinder"
         case .recording: return "video"
         case .overlay: return "rectangle.on.rectangle"
+        case .convert: return "arrow.triangle.2.circlepath"
         case .snapping: return "rectangle.split.2x1"
         case .advanced: return "wrench.and.screwdriver"
         }
@@ -57,7 +59,7 @@ struct SettingsView: View {
                             Image(systemName: item.symbol).font(.system(size: 19)).frame(height: 22)
                             Text(item.title).font(.system(size: 11))
                         }
-                        .frame(width: 82, height: 52)
+                        .frame(width: 74, height: 52)
                         .foregroundStyle(tab == item ? Color.accentColor : Color.secondary)
                         .background(tab == item ? Color.primary.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 8))
                         .contentShape(RoundedRectangle(cornerRadius: 8))
@@ -74,6 +76,7 @@ struct SettingsView: View {
                 case .screenshots: ScreenshotSettings()
                 case .recording: RecordingSettings()
                 case .overlay: OverlaySettings()
+                case .convert: ConvertSettings()
                 case .snapping: SnappingSettings()
                 case .advanced: AdvancedSettings()
                 }

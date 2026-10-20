@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         HotkeyManager.shared.registerAll()
         WindowAX.trackFrontmostApp()
+        FileDragMonitor.shared.refresh()
         SnapController.shared.refresh()
         HistoryStore.shared.purgeExpired()
         if !ScreenCapture.hasPermission { _ = Permissions.ensureScreenRecording() }

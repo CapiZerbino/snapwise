@@ -59,7 +59,7 @@ final class MenuBarController: NSObject {
         let groups: [[AppAction]] = [
             [.captureArea, .capturePreviousArea, .captureFullscreen, .captureWindow, .scrollingCapture, .selfTimer, .allInOne],
             [.recordVideo, .recordGIF],
-            [.captureText],
+            [.captureText, .convertFiles],
             [.openFile, .annotateClipboard, .pinClipboard, .openHistory, .restoreRecentlyClosed],
         ]
         for group in groups {
